@@ -415,9 +415,9 @@ parse_link_tail (GArray      *entities,
 {
   guint i = *current_position;
   const Token *t;
-
+#ifdef LIBTL_DEBUG
   g_debug ("--------");
-
+#endif
   gsize paren_level = 0;
   int first_paren_index = -1;
   for (;;) {
@@ -432,7 +432,9 @@ parse_link_tail (GArray      *entities,
 
       if (first_paren_index == -1) {
         first_paren_index = i;
+#ifdef LIBTL_DEBUG
         g_debug ("First paren index: %d", (int)first_paren_index);
+#endif
       }
       paren_level ++;
       if (paren_level == 3) {
@@ -441,9 +443,13 @@ parse_link_tail (GArray      *entities,
     } else if (tokens[i].type == TOK_CLOSE_PAREN) {
       if (first_paren_index == -1) {
         first_paren_index = i;
+#ifdef LIBTL_DEBUG
         g_debug ("First paren index: %d", (int)first_paren_index);
+#endif
       }
+#ifdef LIBTL_DEBUG
       g_debug ("Close paren");
+#endif
       paren_level --;
     }
 
@@ -454,9 +460,10 @@ parse_link_tail (GArray      *entities,
       break;
     }
   }
-
+#ifdef LIBTL_DEBUG
   g_debug ("After i: %u", i);
   g_debug ("paren level: %d", (int)paren_level);
+#endif
   if (paren_level != 0) {
     g_assert (first_paren_index != -1);
     i = first_paren_index - 1; // Before that paren
@@ -534,7 +541,9 @@ parse_link (GArray      *entities,
   guint tld_index = i;
   guint tld_iter = i;
   gboolean tld_found = FALSE;
+#ifdef LIBTL_DEBUG
   g_debug ("Looking for TLD starting from %u of %ld", i, n_tokens);
+#endif
   while (tld_iter < n_tokens - 1) {
     const Token *t = &tokens[tld_iter];
 
@@ -559,12 +568,16 @@ parse_link (GArray      *entities,
         token_is_tld (&tokens[tld_iter + 1], has_protocol)) {
       tld_index = tld_iter;
       tld_found = TRUE;
+#ifdef LIBTL_DEBUG
       g_debug ("TLD found at %u", tld_iter);
+#endif
     }
 
     tld_iter ++;
   }
+#ifdef LIBTL_DEBUG
   g_debug ("tld_index: %u", tld_index);
+#endif
 
   if (tld_index >= n_tokens - 1 ||
       !tld_found ||
@@ -588,7 +601,9 @@ parse_link (GArray      *entities,
     }
   }
 
+#ifdef LIBTL_DEBUG
   g_debug ("After reading a port: %u", i);
+#endif
 
   // To continue a link, the next token must be a slash or a question mark
   // If it isn't, we stop here.
@@ -615,7 +630,9 @@ parse_link (GArray      *entities,
     }
   }
 
+#ifdef LIBTL_DEBUG
   g_debug ("end_token = i = %u", i);
+#endif
   end_token = i;
   g_assert (end_token < n_tokens);
 
