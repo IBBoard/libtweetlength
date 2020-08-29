@@ -76,6 +76,7 @@ basic_links (void)
   // No Protocol...
   g_assert_cmpint (tl_count_characters ("twitter.com"), ==, 23);
   g_assert_cmpint (tl_count_characters ("twitter.com/"), ==, 23);
+  g_assert_cmpint (tl_count_characters ("dhl.de"), ==, 23); // ccTLDs are now linkified without protocols
   g_assert_cmpint (tl_count_characters ("abc twitter.com/"), ==, 27);
   g_assert_cmpint (tl_count_characters ("/ twitter.com/"), ==, 25);
   g_assert_cmpint (tl_count_characters ("...https://twitter.com/"), ==, 26);

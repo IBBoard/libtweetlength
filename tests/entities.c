@@ -461,9 +461,12 @@ links (void)
   g_free (entities);
 
   entities = tl_extract_entities ("foo.de http://foo.de", &n_entities, NULL);
-  g_assert_cmpint (n_entities, ==, 1);
+  g_assert_cmpint (n_entities, ==, 2);
   g_assert_nonnull (entities);
-  g_assert_cmpint (entities[0].start_character_index, ==, 7);
+  g_assert_cmpint (entities[0].type, ==, TL_ENT_LINK);
+  g_assert_cmpint (entities[0].start_character_index, ==, 0);
+  g_assert_cmpint (entities[1].type, ==, TL_ENT_LINK);
+  g_assert_cmpint (entities[1].start_character_index, ==, 7);
   g_free (entities);
 
   entities = tl_extract_entities ("http://foobar.co.uk", &n_entities, NULL);
@@ -501,14 +504,18 @@ links (void)
   g_free (entities);
 
   entities = tl_extract_entities ("foobar.uk", &n_entities, NULL);
-  g_assert_cmpint (n_entities, ==, 0);
-  g_assert_null (entities);
+  g_assert_cmpint (n_entities, ==, 1);
+  g_assert_nonnull (entities);
+  g_assert_cmpint (entities[0].type, ==, TL_ENT_LINK);
+  g_assert_cmpint (entities[0].start_character_index, ==, 0);
+  g_assert_cmpint (entities[0].length_in_characters, ==, 9);
   g_free (entities);
 
   // .co is a "special tld"
   entities = tl_extract_entities ("foobar.co", &n_entities, NULL);
   g_assert_cmpint (n_entities, ==, 1);
   g_assert_nonnull (entities);
+  g_assert_cmpint (entities[0].type, ==, TL_ENT_LINK);
   g_assert_cmpint (entities[0].start_character_index, ==, 0);
   g_assert_cmpint (entities[0].length_in_characters, ==, 9);
   g_free (entities);
@@ -585,8 +592,8 @@ links (void)
   g_assert_cmpint (entities[0].length_in_characters, ==, 21);
   g_free (entities);
 
-  // The it.so ones are not valid links
-  entities = tl_extract_entities ("http://twitter.com\nhttp://example.com\nhttp://example.com/path\nexample.com/path\nit.so\nit.so/abcde", &n_entities, &text_length);
+  // The it.so ones are not valid links because .aa is not an assigned ccTLD
+  entities = tl_extract_entities ("http://twitter.com\nhttp://example.com\nhttp://example.com/path\nexample.com/path\nit.aa\nit.aa/abcde", &n_entities, &text_length);
   g_assert_cmpint (n_entities, ==, 4);
   g_assert_nonnull (entities);
   g_free (entities);

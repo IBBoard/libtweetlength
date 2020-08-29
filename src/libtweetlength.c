@@ -259,12 +259,10 @@ token_is_tld (const Token *t,
     }
   }
 
-  if (has_protocol) {
-    for (i = 0; i < G_N_ELEMENTS (CCTLDS); i ++) {
-      if (t->length_in_characters == CCTLDS[i].length &&
-          strncasecmp (t->start, CCTLDS[i].str, t->length_in_bytes) == 0) {
-        return TRUE;
-      }
+  for (i = 0; i < G_N_ELEMENTS (CCTLDS); i ++) {
+    if (t->length_in_characters == CCTLDS[i].length &&
+        strncasecmp (t->start, CCTLDS[i].str, t->length_in_bytes) == 0) {
+      return TRUE;
     }
   }
 
