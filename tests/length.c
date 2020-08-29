@@ -77,6 +77,8 @@ basic_links (void)
   g_assert_cmpint (tl_count_characters ("twitter.com"), ==, 23);
   g_assert_cmpint (tl_count_characters ("twitter.com/"), ==, 23);
   g_assert_cmpint (tl_count_characters ("dhl.de"), ==, 23); // ccTLDs are now linkified without protocols
+  g_assert_cmpint (tl_count_characters ("channel5.tv"), ==, 23); // As all ccTLDs are now linkified then .tv and .co are no longer special cases
+  g_assert_cmpint (tl_count_characters ("d3.select"), ==, 23); // This is actually a JavaScript function, but ".select" is now a TLD so Twitter linkifies it
   g_assert_cmpint (tl_count_characters ("abc twitter.com/"), ==, 27);
   g_assert_cmpint (tl_count_characters ("/ twitter.com/"), ==, 25);
   g_assert_cmpint (tl_count_characters ("...https://twitter.com/"), ==, 26);

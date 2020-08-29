@@ -1,0 +1,44 @@
+/*  This file is part of libtweetlength
+ *  Copyright (C) 2017 Timm Bäder, 2020 IBBoard
+ *
+ *  libtweetlength is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  libtweetlength is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with libtweetlength.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef __TL_DATA_H__
+#define __TL_DATA_H__
+
+#define PUNCTUATION   "!'#%&\"()*+,\\-./:;<=>?@[]^_{|}~$`"
+#define SPACES        " \0x0020\0085\00A0"
+#define INVALID_CHARS "\0xFFFE\0xFEFF\0xFFFF"
+
+#define INVALID_URL_CHARS       (PUNCTUATION SPACES INVALID_CHARS)
+#define INVALID_AFTER_URL_CHARS "?,!`~&*^%\\|"
+
+#define INVALID_BEFORE_NON_PROTOCOL_URL_CHARS (".@_-)/")
+#define INVALID_BEFORE_URL_CHARS              ("$")
+
+#define VALID_BEFORE_HASHTAG_CHARS   "{}!<>()[]\\/?`~:;.,%*"
+#define INVALID_BEFORE_HASHTAG_CHARS "_&"
+#define INVALID_HASHTAG_CHARS        "!'#%&\"()*+,\\-./:;<=>?@[]^{|}~$`"
+
+#define INVALID_BEFORE_MENTION_CHARS "!_$&#*"
+#define VALID_BEFORE_MENTION_CHARS   ";,`=+"
+#define INVALID_MENTION_CHARS        "!'#%&\"()*+,\\-./:;<=>?@[]^{|}~$`"
+
+
+// List from twitter-text
+static const struct {
+  size_t length;
+  const char *str;
+} GTLDS[] = {
