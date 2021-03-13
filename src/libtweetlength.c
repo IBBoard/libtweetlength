@@ -566,7 +566,16 @@ parse_link (GArray      *entities,
     }
 
     if (t->type != TOK_DOT) {
-      fragment_length += t->length_in_characters;
+      // Approximate some rules for handling Punycode. This may not be perfect, but it should be good enough and rarely hit.
+      // And it passes Twitter's test case!
+      if (t->length_in_characters != t->length_in_weighted_characters) {
+        gsize unicode_chars = t->length_in_weighted_characters - t->length_in_characters;
+        gsize ascii_ish_chars = t->length_in_characters - unicode_chars;
+        fragment_length += ascii_ish_chars + ((((unicode_chars * 100) / 5) * 6) / 100) + 1;
+      }
+      else {
+        fragment_length += t->length_in_characters;
+      }
       if (fragment_length > 63) {
         return FALSE;
       }
