@@ -541,6 +541,7 @@ parse_link (GArray      *entities,
   guint tld_index = i;
   guint tld_iter = i;
   gboolean tld_found = FALSE;
+  guint fragment_length = 0;
 #ifdef LIBTL_DEBUG
   g_debug ("Looking for TLD starting from %u of %ld", i, n_tokens);
 #endif
@@ -562,6 +563,16 @@ parse_link (GArray      *entities,
       } else {
         break;
       }
+    }
+
+    if (t->type != TOK_DOT) {
+      fragment_length += t->length_in_characters;
+      if (fragment_length > 63) {
+        return FALSE;
+      }
+    }
+    else {
+      fragment_length = 0;
     }
 
     if (t->type == TOK_DOT &&
