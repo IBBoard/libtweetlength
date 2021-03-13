@@ -970,12 +970,14 @@ tl_count_weighted_characters (const char *input, gboolean use_short_link)
     return 0;
   }
 
+  char *normalised = g_utf8_normalize (input, -1, G_NORMALIZE_DEFAULT_COMPOSE);
+  gsize size = 0;
+
   if (use_short_link) {
-    return tl_count_weighted_characters_n (input, strlen (input));
+    size = tl_count_weighted_characters_n (normalised, strlen (normalised));
   }
   else {
-    const char *p = input;
-    gsize size = 0;
+    const char *p = normalised;
     gunichar c;
 
     c = g_utf8_get_char (p);
@@ -984,9 +986,10 @@ tl_count_weighted_characters (const char *input, gboolean use_short_link)
       p = g_utf8_next_char (p);
       c = g_utf8_get_char (p);
     }
-
-    return size;
   }
+
+  g_free(normalised);
+  return size;
 }
 
 /*
