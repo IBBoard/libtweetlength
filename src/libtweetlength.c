@@ -979,12 +979,12 @@ count_entities_in_weighted_characters (GArray *entities)
 /*
  * tl_count_weighted_chararacters:
  * input: (nullable): NUL-terminated tweet text
- * use_short_link: TRUE to count links as t.co link length or FALSE count pure weighted plain text length
+ * use_short_link: TRUE to count links as t.co link length and use special handling of some combining characters or FALSE count pure weighted plain text length
  *
  * Returns: The length of @input, in Twitter's weighted characters.
  */
 gsize
-tl_count_weighted_characters (const char *input, gboolean use_short_link)
+tl_count_weighted_characters (const char *input, gboolean use_compact_form)
 {
   if (input == NULL || input[0] == '\0') {
     return 0;
@@ -993,7 +993,7 @@ tl_count_weighted_characters (const char *input, gboolean use_short_link)
   char *normalised = g_utf8_normalize (input, -1, G_NORMALIZE_DEFAULT_COMPOSE);
   gsize size = 0;
 
-  if (use_short_link) {
+  if (use_compact_form) {
     size = tl_count_weighted_characters_n (normalised, strlen (normalised));
   }
   else {
