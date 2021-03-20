@@ -128,7 +128,7 @@ get_chartype_options ()
   chartype_map = g_hash_table_new(g_direct_hash, g_direct_equal);
 
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_PARENT), new_chartypeoption(CHARTYPE_FAMILY_PARENTS, WEIGHTED_VALUE));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_PARENTS, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));

@@ -173,6 +173,8 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466", COUNT_COMPACT), ==, 2); // Man+ZWJ+Man+ZWJ+Girl
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466\u200D", COUNT_COMPACT), ==, 3); // Man+ZWJ+Man+ZWJ+Girl and trailing ZWJ
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466\u200D\U0001F466", COUNT_COMPACT), ==, 2); // Man+ZWJ+Man+ZWJ+Girl+ZWJ+Girl
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\U0001F467", COUNT_COMPACT), ==, 2); // One-parent, one-child family
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\U0001F467\u200D\U0001F467", COUNT_COMPACT), ==, 2); // One-parent, two-child family
 }
 
 static void
