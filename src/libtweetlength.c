@@ -435,6 +435,10 @@ chartype_for_char (gunichar c)
   else if (!is_weighted_character (c)) {
     return CHARTYPE_UNWEIGHTED;
   }
+  else if (c >= 0x1100 && c <= 0x2000) {
+    // Hangul Jamo through Greek Extended
+    return CHARTYPE_WEIGHTED_OTHER;
+  }
   else if (c >= 0x1F3FB && c <= 0x1F3FF) {
     return CHARTYPE_FITZPATRICK;
   }
@@ -526,7 +530,7 @@ chartype_for_char (gunichar c)
     return CHARTYPE_VS16;
   }
   else {
-    g_debug("Fell through to \"other\" for %s (0x%08X)", g_ucs4_to_utf8 (&c, 1, NULL, NULL, NULL), c);
+    g_debug("Fell through to \"other\" for 0x%08X", c);
     return CHARTYPE_WEIGHTED_OTHER;
   }
 }
