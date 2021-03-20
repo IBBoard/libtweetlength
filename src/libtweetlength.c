@@ -20,6 +20,9 @@
 #include <string.h>
 
 #define LINK_LENGTH 23
+#define UNWEIGHTED_VALUE 1
+#define WEIGHTED_VALUE 2
+#define MAKE_KEY(prev_char, cur_char) GUINT_TO_POINTER(prev_char + (cur_char << 8))
 
 typedef struct {
   guint type;
@@ -67,6 +70,71 @@ enum {
   TOK_EXCLAMATION,
   TOK_TILDE
 };
+
+enum {
+  CHARTYPE_NONE, // Used for initial setup ("none") and other special situations (Fitzpatrick modifier on its own)
+  CHARTYPE_UNWEIGHTED,
+  CHARTYPE_KEYCAPPABLE,
+  CHARTYPE_WEIGHTED_OTHER,
+  CHARTYPE_FITZPATRICK,
+  CHARTYPE_PARENT,
+  CHARTYPE_CHILD,
+  CHARTYPE_FAMILY_PARENTS,
+  CHARTYPE_FAMILY_1_CHILD,
+  CHARTYPE_FAMILY_2_CHILD,
+  CHARTYPE_PERSON,
+  CHARTYPE_JOB,
+  CHARTYPE_JOB_PERSON,
+  CHARTYPE_WHITE_FLAG,
+  CHARTYPE_BLACK_FLAG,
+  CHARTYPE_GENDER,
+  CHARTYPE_HAIR,
+  CHARTYPE_VS16,
+  CHARTYPE_TAG,
+  CHARTYPE_TAG_CLOSE,
+  CHARTYPE_ZWJ,
+  LAST_CHARTYPE
+};
+
+typedef struct _CharTypeOption {
+  guint8 new_chartype;
+  guint8 carry_weight;
+} CharTypeOption;
+
+// Map of current character type to a list of potential replacements based on the previous character
+GHashTable *chartype_map;
+
+static inline CharTypeOption*
+new_chartypeoption(guint new_chartype, guint carry_weight) {
+  CharTypeOption *opt = malloc(sizeof(CharTypeOption));
+  opt->new_chartype = new_chartype;
+  opt->carry_weight = carry_weight;
+  return opt;
+}
+
+static inline GHashTable*
+get_chartype_options ()
+{
+  if (chartype_map != NULL) {
+    return chartype_map;
+  }
+
+  chartype_map = g_hash_table_new(g_direct_hash, g_direct_equal);
+
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_PARENT), new_chartypeoption(CHARTYPE_FAMILY_PARENTS, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_PARENTS, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAG, WEIGHTED_VALUE));
+
+  // We assume that CHARTYPE_TAG strings are valid because it's too much trouble if they're not.
+  // There's a near-zero probability of people writing them by hand, so we should be safe.
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAG, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAG, CHARTYPE_TAG_CLOSE), new_chartypeoption(CHARTYPE_TAG, 0));
+
+  return chartype_map;
+}
 
 static inline guint
 token_type_from_char (gunichar c)
@@ -335,22 +403,119 @@ entity_length_in_characters (const TlEntity *e)
   }
 }
 
-static gsize
-weighted_length_for_character (gunichar ch)
-{
+static inline gboolean
+is_weighted_character (gunichar ch) {
   // Based on https://developer.twitter.com/en/docs/developer-utilities/twitter-text
   // then the following ranges count as "1", everything else is "2":
   //   * 0 - 4351 (Latin through to Georgian)
   //   * 8192 - 8205 (Unicode spaces)
   //   * 8208 - 8223 (Unicode hyphens and smart quotes)
   //   * 8242 - 8247 (Prime marks)
-  if ((ch >= 0    && ch <= 4351) ||
-      (ch >= 8192 && ch <= 8205) ||
-      (ch >= 8208 && ch <= 8223) ||
-      (ch >= 8242 && ch <= 8247)) {
-    return 1;
-  } else {
-    return 2;
+  return !((ch >= 0    && ch <= 4351) ||
+           (ch >= 8192 && ch <= 8205) ||
+           (ch >= 8208 && ch <= 8223) ||
+           (ch >= 8242 && ch <= 8247));
+}
+
+static inline guint
+chartype_for_char (gunichar c)
+{
+  if (c == 0x200D) {
+    return CHARTYPE_ZWJ;
+  }
+  else if (!is_weighted_character (c)) {
+    return CHARTYPE_UNWEIGHTED;
+  }
+  else if (c >= 0x1F3FB && c <= 0x1F3FF) {
+    return CHARTYPE_FITZPATRICK;
+  }
+  else if (c == 0x1f466 || c == 0x1f467) {
+    return CHARTYPE_CHILD;
+  }
+  else if (c == 0x1f468 || c == 0x1f469) {
+    return CHARTYPE_PARENT;
+  }
+  else if (c == 0x261D
+           || c == 0x26F9
+           || (c >= 0x270A && c<= 0x270C)
+           || c == 0x270D
+           || c == 0x1F385
+           || (c >= 0x1F3C2 && c<= 0x1F3C4)
+           || c == 0x1F3C7
+           || c == 0x1F3CA
+           || (c >= 0x1F3CB && c<= 0x1F3CC)
+           || (c >= 0x1F442 && c<= 0x1F443)
+           || (c >= 0x1F446 && c<= 0x1F450)
+           || (c >= 0x1F466 && c<= 0x1F46B)
+           || (c >= 0x1F46C && c<= 0x1F46D)
+           || (c >= 0x1F46E && c<= 0x1F478)
+           || c == 0x1F47C
+           || (c >= 0x1F481 && c<= 0x1F483)
+           || (c >= 0x1F485 && c<= 0x1F487)
+           || c == 0x1F48F
+           || c == 0x1F491
+           || c == 0x1F4AA
+           || (c >= 0x1F574 && c<= 0x1F575)
+           || c == 0x1F57A
+           || c == 0x1F590
+           || (c >= 0x1F595 && c<= 0x1F596)
+           || (c >= 0x1F645 && c<= 0x1F647)
+           || (c >= 0x1F64B && c<= 0x1F64F)
+           || c == 0x1F6A3
+           || (c >= 0x1F6B4 && c<= 0x1F6B5)
+           || c == 0x1F6B6
+           || c == 0x1F6C0
+           || c == 0x1F6CC
+           || c == 0x1F90C
+           || c == 0x1F90F
+           || c == 0x1F918
+           || (c >= 0x1F919 && c<= 0x1F91E)
+           || c == 0x1F91F
+           || c == 0x1F926
+           || c == 0x1F930
+           || (c >= 0x1F931 && c<= 0x1F932)
+           || (c >= 0x1F933 && c<= 0x1F939)
+           || (c >= 0x1F93C && c<= 0x1F93E)
+           || c == 0x1F977
+           || (c >= 0x1F9B5 && c<= 0x1F9B6)
+           || (c >= 0x1F9B8 && c<= 0x1F9B9)
+           || c == 0x1F9BB
+           || (c >= 0x1F9CD && c<= 0x1F9CF)
+           || (c >= 0x1F9D1 && c<= 0x1F9DD)) {
+    return CHARTYPE_PERSON;
+  }
+  else if (c == 0x1F3F4) {
+    return CHARTYPE_WHITE_FLAG;
+  }
+  else if ((c >= 0xE0030 && c <= 0xE0039)
+            || (c >= 0xE0041 && c <= 0xE005A)
+            || (c >= 0xE0061 && c <= 0xE007A)) {
+    // Capital letters and digits, as per https://www.unicode.org/L2/L2015/15190-pri299-additional-flags-bkgnd.html
+    // But Twitter takes lower-case
+    return CHARTYPE_TAG;
+  }
+  else if (c == 0xE007F) {
+    return CHARTYPE_TAG_CLOSE;
+  }
+  else if (c == 0x1F3A4) {
+    // TODO: Add more jobs
+    return CHARTYPE_JOB;
+  }
+  else {
+    return CHARTYPE_WEIGHTED_OTHER;
+  }
+}
+
+static inline gboolean
+is_fitzpatrickable (guint char_type) {
+  // Everything with Emoji_Modifier_Base - https://www.unicode.org/Public/13.0.0/ucd/emoji/emoji-data.txt
+  switch (char_type) {
+    case CHARTYPE_PARENT:
+    case CHARTYPE_CHILD:
+    case CHARTYPE_PERSON:
+      return TRUE;
+    default:
+      return FALSE;
   }
 }
 
@@ -361,11 +526,13 @@ weighted_length_for_character (gunichar ch)
  */
 static GArray *
 tokenize (const char *input,
-          gsize       length_in_bytes)
+          gsize       length_in_bytes,
+          gboolean    compact_emoji)
 {
   GArray *tokens = g_array_new (FALSE, TRUE, sizeof (Token));
   const char *p = input;
   gsize cur_character_index = 0;
+  GHashTable *chartype_map = get_chartype_options();
 
   while (p - input < (long)length_in_bytes) {
     const char *cur_start = p;
@@ -374,31 +541,103 @@ tokenize (const char *input,
     gsize length_in_chars = 0;
     gsize length_in_weighted_chars = 0;
     guint last_token_type = 0;
+    guint prev_char_type = CHARTYPE_NONE;
+    guint cur_char_type = CHARTYPE_NONE;
+    guint carry_weight = 0;
+    gboolean is_fitzpatricked = FALSE;
+    gboolean is_zwjed = FALSE;
+    gboolean matched = FALSE;
+    CharTypeOption *data;
 
     /* If this char already splits, it's a one-char token */
     if (char_splits (cur_char)) {
       const char *old_p = p;
       p = g_utf8_next_char (p);
-      emplace_token (tokens, cur_start, p - old_p, cur_character_index, 1, weighted_length_for_character (cur_char));
+      emplace_token (tokens, cur_start, p - old_p, cur_character_index, 1, is_weighted_character (cur_char) ? WEIGHTED_VALUE : UNWEIGHTED_VALUE);
       cur_character_index ++;
       continue;
     }
 
     last_token_type = token_type_from_char (cur_char);
+
     do {
-      length_in_weighted_chars += weighted_length_for_character (cur_char);
+      if (compact_emoji) {
+        matched = FALSE;
+        cur_char_type = chartype_for_char (cur_char);
+
+        if (cur_char_type == CHARTYPE_ZWJ) {
+          if (!is_zwjed) {
+            matched = TRUE;
+            is_zwjed = TRUE;
+            carry_weight += UNWEIGHTED_VALUE;
+          }
+          cur_char_type = prev_char_type;
+          is_fitzpatricked = FALSE;
+        }
+        else if (cur_char_type == CHARTYPE_FITZPATRICK) {
+          if (!is_fitzpatricked && is_fitzpatrickable (prev_char_type)) {
+            matched = TRUE;
+            is_fitzpatricked = TRUE;
+            cur_char_type = prev_char_type;
+          }
+          else {
+            is_fitzpatricked = FALSE;
+          }
+          is_zwjed = FALSE;
+        }
+        else {
+          matched = FALSE;
+
+          if (is_zwjed || cur_char_type == CHARTYPE_TAG || prev_char_type == CHARTYPE_TAG) {
+            data = g_hash_table_lookup(chartype_map, MAKE_KEY(prev_char_type, cur_char_type));
+
+            if (data != NULL) {
+              matched = TRUE;
+              int char_carry_weight = data->carry_weight;
+              cur_char_type = data->new_chartype;
+              if (char_carry_weight == 0) {
+                // It was a completing character
+                carry_weight = 0;
+              }
+              else {
+                carry_weight += char_carry_weight;
+              }
+            }
+            // Else it didn't have a mapping
+          }
+
+          is_zwjed = FALSE;
+          is_fitzpatricked = FALSE;
+        }
+
+        if (!matched) {
+          // If we didn't match a rule then any partially built sequence (carry_weight)
+          length_in_weighted_chars += carry_weight + is_weighted_character (cur_char) ? WEIGHTED_VALUE : UNWEIGHTED_VALUE;
+          carry_weight = 0;
+        }
+
+        prev_char_type = cur_char_type;
+      }
+      else {
+        length_in_weighted_chars += is_weighted_character (cur_char) ? WEIGHTED_VALUE : UNWEIGHTED_VALUE;
+      }
+
       const char *old_p = p;
       p = g_utf8_next_char (p);
       cur_char = g_utf8_get_char (p);
       cur_length += p - old_p;
       length_in_chars ++;
 
-      if (token_type_from_char (cur_char) != last_token_type)
+      if (token_type_from_char (cur_char) != last_token_type) {
+        length_in_weighted_chars += carry_weight;
+        carry_weight = 0;
         break;
+      }
 
     } while (!char_splits (cur_char) &&
              p - input < (long)length_in_bytes);
-
+    
+    length_in_weighted_chars += carry_weight;
     emplace_token (tokens, cur_start, cur_length, cur_character_index, length_in_chars, length_in_weighted_chars);
 
     cur_character_index += length_in_chars;
@@ -444,7 +683,7 @@ parse_link_tail (GArray      *entities,
       if (first_paren_index == -1) {
         first_paren_index = i;
 #ifdef LIBTL_DEBUG
-        g_debug ("First paren index: %d", (int)first_paren_index);
+       g_debug ("First paren index: %d", (int)first_paren_index);
 #endif
       }
 #ifdef LIBTL_DEBUG
@@ -935,7 +1174,7 @@ tl_count_characters_n (const char *input,
   }
 
   // From here on, input/length_in_bytes are trusted to be OK
-  tokens = tokenize (input, length_in_bytes);
+  tokens = tokenize (input, length_in_bytes, FALSE);
 
   n_tokens = tokens->len;
   token_array = (const Token *)g_array_free (tokens, FALSE);
@@ -979,12 +1218,14 @@ count_entities_in_weighted_characters (GArray *entities)
 /*
  * tl_count_weighted_chararacters:
  * input: (nullable): NUL-terminated tweet text
- * use_short_link: TRUE to count links as t.co link length and use special handling of some combining characters or FALSE count pure weighted plain text length
+ * count_mode: COUNT_BASIC to do a dumb weighting count,
+ *    COUNT_SHORT_URLS to do dumb weighting count but with URLs only counting as short url
+ *    or COUNT_COMPACT for full short URL and compact emoji behaviour
  *
  * Returns: The length of @input, in Twitter's weighted characters.
  */
 gsize
-tl_count_weighted_characters (const char *input, gboolean use_compact_form)
+tl_count_weighted_characters (const char *input, guint count_mode)
 {
   if (input == NULL || input[0] == '\0') {
     return 0;
@@ -993,8 +1234,11 @@ tl_count_weighted_characters (const char *input, gboolean use_compact_form)
   char *normalised = g_utf8_normalize (input, -1, G_NORMALIZE_DEFAULT_COMPOSE);
   gsize size = 0;
 
-  if (use_compact_form) {
-    size = tl_count_weighted_characters_n (normalised, strlen (normalised));
+  if (count_mode == COUNT_SHORT_URLS) {
+    size = tl_count_weighted_characters_n (normalised, strlen (normalised), FALSE);
+  }
+  else if (count_mode == COUNT_COMPACT) {
+    size = tl_count_weighted_characters_n (normalised, strlen (normalised), TRUE);
   }
   else {
     const char *p = normalised;
@@ -1002,7 +1246,7 @@ tl_count_weighted_characters (const char *input, gboolean use_compact_form)
 
     c = g_utf8_get_char (p);
     while (c != '\0') {
-      size += weighted_length_for_character(c);
+      size += is_weighted_character (c) ? WEIGHTED_VALUE : UNWEIGHTED_VALUE;
       p = g_utf8_next_char (p);
       c = g_utf8_get_char (p);
     }
@@ -1016,12 +1260,14 @@ tl_count_weighted_characters (const char *input, gboolean use_compact_form)
  * tl_count_weighted_characters_n:
  * input: (nullable): Text to measure
  * length_in_bytes: Length of @input, in bytes.
+ * compact_emoji: whether to count joined emoji as a compacted single character
  *
  * Returns: The length of @input, in characters.
  */
 gsize
 tl_count_weighted_characters_n (const char *input,
-                       gsize       length_in_bytes)
+                                gsize       length_in_bytes,
+                                gboolean    compact_emoji)
 {
   GArray *tokens;
   const Token *token_array;
@@ -1034,7 +1280,7 @@ tl_count_weighted_characters_n (const char *input,
   }
 
   // From here on, input/length_in_bytes are trusted to be OK
-  tokens = tokenize (input, length_in_bytes);
+  tokens = tokenize (input, length_in_bytes, compact_emoji);
 
   n_tokens = tokens->len;
   token_array = (const Token *)g_array_free (tokens, FALSE);
@@ -1098,7 +1344,7 @@ tl_extract_entities_internal (const char *input,
   TlEntity *result_entities;
   guint result_index = 0;
 
-  tokens = tokenize (input, length_in_bytes);
+  tokens = tokenize (input, length_in_bytes, FALSE);
 
 #ifdef LIBTL_DEBUG
   g_debug ("############ %s: %.*s", __FUNCTION__, (guint)length_in_bytes, input);

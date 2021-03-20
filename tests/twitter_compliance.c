@@ -38,6 +38,7 @@ test_compliance (void) {
     yaml_parser_set_input_file(&parser, input);
     int done = 0;
     gboolean run_tests = FALSE;
+    guint count_mode = COUNT_BASIC;
     int indent = 0;
 
     char *description;
@@ -67,19 +68,28 @@ test_compliance (void) {
                 break;
             case YAML_MAPPING_END_EVENT:
                 if (indent == 3 && run_tests) {
-                    gsize length = tl_count_weighted_characters(text, TRUE) ;
+                    gsize length = tl_count_weighted_characters(text, count_mode) ;
                     if (length != expected_length) {
                         g_test_fail();
                         g_warning("Test '%s': expected length %ld but got %ld for text \"%s\"", description, expected_length, length, text);
                     }
-                    g_assert_cmpint(tl_count_weighted_characters(text, TRUE), ==, expected_length);
                 }
                 indent -= 1;
                 break;
             case YAML_SCALAR_EVENT:
                 value = (gchar *)event.data.scalar.value;
                 if (indent == 2) {
-                    run_tests = g_strcmp0(value, "WeightedTweetsCounterTest") == 0 || g_strcmp0(value, "WeightedTweetsWithDiscountedEmojiCounterTest") == 0;
+                    if (g_strcmp0(value, "WeightedTweetsCounterTest") == 0) {
+                        run_tests = TRUE;
+                        count_mode = COUNT_SHORT_URLS;
+                    }
+                    else if (g_strcmp0(value, "WeightedTweetsWithDiscountedEmojiCounterTest") == 0) {
+                        run_tests = TRUE;
+                        count_mode = COUNT_COMPACT;
+                    }
+                    else {
+                        run_tests = FALSE;
+                    }
                 }
                 else if (indent >= 3 && run_tests) {
                     if (next_scalar != SKIP) {

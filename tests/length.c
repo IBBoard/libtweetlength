@@ -137,13 +137,13 @@ utf8 (void)
   g_assert_cmpint (tl_count_characters ("a 😭 a"), ==, 5);
 
   // New "weighted-length" calculation https://developer.twitter.com/en/docs/developer-utilities/twitter-text
-  g_assert_cmpint (tl_count_weighted_characters ("a", TRUE), ==, 1);
-  g_assert_cmpint (tl_count_weighted_characters ("ä", TRUE), ==, 1);
-  g_assert_cmpint (tl_count_weighted_characters ("火", TRUE), ==, 2);
-  g_assert_cmpint (tl_count_weighted_characters ("a 😭 a", TRUE), ==, 6);
-  g_assert_cmpint (tl_count_weighted_characters ("https://twitter.com/", TRUE), ==, 23);
-  g_assert_cmpint (tl_count_weighted_characters ("a https://twitter.com/ 火", TRUE), ==, 28);
-  g_assert_cmpint (tl_count_weighted_characters ("I am a Tweet", TRUE), <, 20);
+  g_assert_cmpint (tl_count_weighted_characters ("a", COUNT_COMPACT), ==, 1);
+  g_assert_cmpint (tl_count_weighted_characters ("ä", COUNT_COMPACT), ==, 1);
+  g_assert_cmpint (tl_count_weighted_characters ("火", COUNT_COMPACT), ==, 2);
+  g_assert_cmpint (tl_count_weighted_characters ("a 😭 a", COUNT_COMPACT), ==, 6);
+  g_assert_cmpint (tl_count_weighted_characters ("https://twitter.com/", COUNT_COMPACT), ==, 23);
+  g_assert_cmpint (tl_count_weighted_characters ("a https://twitter.com/ 火", COUNT_COMPACT), ==, 28);
+  g_assert_cmpint (tl_count_weighted_characters ("I am a Tweet", COUNT_COMPACT), <, 20);
   g_assert_cmpint (tl_count_weighted_characters ("A lie gets halfway around the world before the truth has a chance to get its pants on. Winston Churchill (1874-1965) http://bit.ly/dJpywL", TRUE), ==, 140);
   g_assert_cmpint (tl_count_weighted_characters ("A lié géts halfway arøünd thé wørld béføré thé truth has a chance tø get its pants øn. Winston Churchill (1874-1965) http://bit.ly/dJpywL", TRUE), ==, 140);
   g_assert_cmpint (tl_count_weighted_characters ("のののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののののの", TRUE), ==, 280);
@@ -163,6 +163,18 @@ validate (void)
   // [1] https://github.com/twitter/twitter-text/blob/master/conformance/validate.yml
 }
 
+static void
+emoji (void)
+{
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468", COUNT_COMPACT), ==, 2); // Man
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D", COUNT_COMPACT), ==, 3); // Man and trailing ZWJ
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468", COUNT_COMPACT), ==, 5); // Man+ZWJ+Man (doesn't combine)
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D", COUNT_COMPACT), ==, 6); // Man+ZWJ+Man and trailing ZWJ
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466", COUNT_COMPACT), ==, 2); // Man+ZWJ+Man+ZWJ+Girl
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466\u200D", COUNT_COMPACT), ==, 3); // Man+ZWJ+Man+ZWJ+Girl and trailing ZWJ
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466\u200D\U0001F466", COUNT_COMPACT), ==, 2); // Man+ZWJ+Man+ZWJ+Girl+ZWJ+Girl
+}
+
 int
 main (int argc, char **argv)
 {
@@ -180,6 +192,7 @@ main (int argc, char **argv)
   g_test_add_func ("/length/advanced-links", advanced_links);
   g_test_add_func ("/length/utf8", utf8);
   g_test_add_func ("/length/validate", validate);
+  g_test_add_func ("/length/emoji", emoji);
 
   return g_test_run ();
 }
