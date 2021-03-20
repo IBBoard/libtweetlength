@@ -534,7 +534,9 @@ chartype_for_char (gunichar c)
     return CHARTYPE_VS16;
   }
   else {
+#ifdef LIBTL_DEBUG
     g_debug("Fell through to \"other\" for 0x%08X", c);
+#endif
     return CHARTYPE_WEIGHTED_OTHER;
   }
 }
