@@ -83,6 +83,7 @@ enum {
   CHARTYPE_FAMILY_1_CHILD,
   CHARTYPE_FAMILY_2_CHILD,
   CHARTYPE_PERSON,
+  CHARTYPE_FITZPATRICKED_PERSON,
   CHARTYPE_JOB,
   CHARTYPE_JOB_PERSON,
   CHARTYPE_WHITE_FLAG,
@@ -132,6 +133,9 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_PARENTS, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CHILD, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_TRANSGENDER_SYMBOL), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BLACK_FLAG, CHARTYPE_SKULL_AND_CROSSBONES), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
@@ -536,19 +540,6 @@ chartype_for_char (gunichar c)
 }
 
 static inline gboolean
-is_fitzpatrickable (guint char_type) {
-  // Everything with Emoji_Modifier_Base - https://www.unicode.org/Public/13.0.0/ucd/emoji/emoji-data.txt
-  switch (char_type) {
-    case CHARTYPE_PARENT:
-    case CHARTYPE_CHILD:
-    case CHARTYPE_PERSON:
-      return TRUE;
-    default:
-      return FALSE;
-  }
-}
-
-static inline gboolean
 is_emojifiable (guint char_type) {
   switch (char_type) {
     case CHARTYPE_WHITE_FLAG:
@@ -584,7 +575,6 @@ tokenize (const char *input,
     guint prev_char_type = CHARTYPE_NONE;
     guint cur_char_type = CHARTYPE_NONE;
     guint carry_weight = 0;
-    gboolean is_fitzpatricked = FALSE;
     gboolean is_zwjed = FALSE;
     gboolean is_emojified = FALSE;
     gboolean matched = FALSE;
@@ -613,19 +603,6 @@ tokenize (const char *input,
             carry_weight += UNWEIGHTED_VALUE;
           }
           cur_char_type = prev_char_type;
-          is_fitzpatricked = FALSE;
-          is_emojified = FALSE;
-        }
-        else if (cur_char_type == CHARTYPE_FITZPATRICK) {
-          if (!is_fitzpatricked && is_fitzpatrickable (prev_char_type)) {
-            matched = TRUE;
-            is_fitzpatricked = TRUE;
-            cur_char_type = prev_char_type;
-          }
-          else {
-            is_fitzpatricked = FALSE;
-          }
-          is_zwjed = FALSE;
           is_emojified = FALSE;
         }
         else if (cur_char_type == CHARTYPE_VS16) {
@@ -642,7 +619,8 @@ tokenize (const char *input,
         else {
           matched = FALSE;
 
-          if (is_zwjed || cur_char_type == CHARTYPE_TAG || prev_char_type == CHARTYPE_TAGGED_FLAG) {
+          if (is_zwjed || cur_char_type == CHARTYPE_FITZPATRICK
+              || cur_char_type == CHARTYPE_TAG || prev_char_type == CHARTYPE_TAGGED_FLAG) {
             data = g_hash_table_lookup(chartype_map, MAKE_KEY(prev_char_type, cur_char_type));
 
             if (data != NULL) {
@@ -661,7 +639,6 @@ tokenize (const char *input,
           }
 
           is_zwjed = FALSE;
-          is_fitzpatricked = FALSE;
           is_emojified = FALSE;
         }
 
