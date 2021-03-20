@@ -93,6 +93,7 @@ enum {
   CHARTYPE_COMBINED_FLAG,
   CHARTYPE_VS16,
   CHARTYPE_TAG,
+  CHARTYPE_TAGGED_FLAG,
   CHARTYPE_TAG_CLOSE,
   CHARTYPE_ZWJ,
   LAST_CHARTYPE
@@ -128,13 +129,13 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_PARENTS, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAG, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
 
   // We assume that CHARTYPE_TAG strings are valid because it's too much trouble if they're not.
   // There's a near-zero probability of people writing them by hand, so we should be safe.
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAG, WEIGHTED_VALUE));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAG, CHARTYPE_TAG_CLOSE), new_chartypeoption(CHARTYPE_TAG, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BLACK_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAGGED_FLAG, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAGGED_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAGGED_FLAG, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAGGED_FLAG, CHARTYPE_TAG_CLOSE), new_chartypeoption(CHARTYPE_TAGGED_FLAG, 0));
 
   return chartype_map;
 }
@@ -490,6 +491,9 @@ chartype_for_char (gunichar c)
   else if (c == 0x1F3F3) {
     return CHARTYPE_WHITE_FLAG;
   }
+  else if (c == 0x1F3F4) {
+    return CHARTYPE_BLACK_FLAG;
+  }
   else if (c == 0x1F308) {
     return CHARTYPE_RAINBOW;
   }
@@ -621,7 +625,7 @@ tokenize (const char *input,
         else {
           matched = FALSE;
 
-          if (is_zwjed || cur_char_type == CHARTYPE_TAG || prev_char_type == CHARTYPE_TAG) {
+          if (is_zwjed || cur_char_type == CHARTYPE_TAG || prev_char_type == CHARTYPE_TAGGED_FLAG) {
             data = g_hash_table_lookup(chartype_map, MAKE_KEY(prev_char_type, cur_char_type));
 
             if (data != NULL) {
