@@ -178,10 +178,10 @@ emoji (void)
 static void
 cawbird_bug_114 (void)
 {
-  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4", COUNT_COMPACT), ==, 2); // White flag without VS16
-  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4\uFE0F", COUNT_COMPACT), ==, 2); // White flag with VS16
-  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4\u200D\U0001F308", COUNT_COMPACT), ==, 2); // Rainbow flag without VS16
-  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4\uFE0F\u200D\U0001F308", COUNT_COMPACT), ==, 2); // Rainbow flag with VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F3", COUNT_COMPACT), ==, 2); // White flag without VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F3\uFE0F", COUNT_COMPACT), ==, 2); // White flag with VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F3\u200D\U0001F308", COUNT_COMPACT), ==, 2); // Rainbow flag without VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F3\uFE0F\u200D\U0001F308", COUNT_COMPACT), ==, 2); // Rainbow flag with VS16
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\U0001F3FF", COUNT_COMPACT), ==, 2); // Man with dark skin
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468", COUNT_COMPACT), ==, 2); // Default yellow man
 }

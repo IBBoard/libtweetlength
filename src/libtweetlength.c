@@ -487,7 +487,7 @@ chartype_for_char (gunichar c)
            || (c >= 0x1F9D1 && c<= 0x1F9DD)) {
     return CHARTYPE_PERSON;
   }
-  else if (c == 0x1F3F4) {
+  else if (c == 0x1F3F3) {
     return CHARTYPE_WHITE_FLAG;
   }
   else if (c == 0x1F308) {
