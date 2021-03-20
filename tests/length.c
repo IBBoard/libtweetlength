@@ -175,6 +175,20 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466\u200D\U0001F466", COUNT_COMPACT), ==, 2); // Man+ZWJ+Man+ZWJ+Girl+ZWJ+Girl
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\U0001F467", COUNT_COMPACT), ==, 2); // One-parent, one-child family
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\U0001F467\u200D\U0001F467", COUNT_COMPACT), ==, 2); // One-parent, two-child family
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F468", COUNT_COMPACT), ==, 2); // Woman and man love
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\u2764\uFE0F\u200D\U0001F468", COUNT_COMPACT), ==, 2); // Man and man love
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F469", COUNT_COMPACT), ==, 2); // Woman and woman love
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\u2764\uFE0F\u200D\U0001F469", COUNT_COMPACT), ==, 10); // Man and woman breaks it
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FF\u200D\u2764\uFE0F\u200D\U0001F469", COUNT_COMPACT), ==, 10); // Fitzpatrick breaks it
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F469\U0001F3FF", COUNT_COMPACT), ==, 4); // Fitzpatrick after is an extra
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F468", COUNT_COMPACT), ==, 2); // Woman and man kissing
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F468", COUNT_COMPACT), ==, 2); // Man and man kissing
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469", COUNT_COMPACT), ==, 2); // Woman and woman kissing
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469", COUNT_COMPACT), ==, 13); // Man and Woman breaks it
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FF\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469", COUNT_COMPACT), ==, 13); // Fitzpatrick breaks it
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469\U0001F3FF", COUNT_COMPACT), ==, 4); // Fitzpatrick after is an extra
 }
 
 static void
