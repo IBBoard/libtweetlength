@@ -89,6 +89,8 @@ enum {
   CHARTYPE_BLACK_FLAG,
   CHARTYPE_GENDER,
   CHARTYPE_HAIR,
+  CHARTYPE_RAINBOW,
+  CHARTYPE_COMBINED_FLAG,
   CHARTYPE_VS16,
   CHARTYPE_TAG,
   CHARTYPE_TAG_CLOSE,
@@ -127,6 +129,7 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAG, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
 
   // We assume that CHARTYPE_TAG strings are valid because it's too much trouble if they're not.
   // There's a near-zero probability of people writing them by hand, so we should be safe.
@@ -487,6 +490,9 @@ chartype_for_char (gunichar c)
   else if (c == 0x1F3F4) {
     return CHARTYPE_WHITE_FLAG;
   }
+  else if (c == 0x1F308) {
+    return CHARTYPE_RAINBOW;
+  }
   else if ((c >= 0xE0030 && c <= 0xE0039)
             || (c >= 0xE0041 && c <= 0xE005A)
             || (c >= 0xE0061 && c <= 0xE007A)) {
@@ -501,6 +507,9 @@ chartype_for_char (gunichar c)
     // TODO: Add more jobs
     return CHARTYPE_JOB;
   }
+  else if (c == 0xFE0F) {
+    return CHARTYPE_VS16;
+  }
   else {
     return CHARTYPE_WEIGHTED_OTHER;
   }
@@ -513,6 +522,16 @@ is_fitzpatrickable (guint char_type) {
     case CHARTYPE_PARENT:
     case CHARTYPE_CHILD:
     case CHARTYPE_PERSON:
+      return TRUE;
+    default:
+      return FALSE;
+  }
+}
+
+static inline gboolean
+is_emojifiable (guint char_type) {
+  switch (char_type) {
+    case CHARTYPE_WHITE_FLAG:
       return TRUE;
     default:
       return FALSE;
@@ -546,6 +565,7 @@ tokenize (const char *input,
     guint carry_weight = 0;
     gboolean is_fitzpatricked = FALSE;
     gboolean is_zwjed = FALSE;
+    gboolean is_emojified = FALSE;
     gboolean matched = FALSE;
     CharTypeOption *data;
 
@@ -573,6 +593,7 @@ tokenize (const char *input,
           }
           cur_char_type = prev_char_type;
           is_fitzpatricked = FALSE;
+          is_emojified = FALSE;
         }
         else if (cur_char_type == CHARTYPE_FITZPATRICK) {
           if (!is_fitzpatricked && is_fitzpatrickable (prev_char_type)) {
@@ -584,6 +605,18 @@ tokenize (const char *input,
             is_fitzpatricked = FALSE;
           }
           is_zwjed = FALSE;
+          is_emojified = FALSE;
+        }
+        else if (cur_char_type == CHARTYPE_VS16) {
+          if (!is_emojified && is_emojifiable(prev_char_type)) {
+            matched = TRUE;
+            is_emojified = TRUE;
+            cur_char_type = prev_char_type;
+            carry_weight = 0;
+          }
+          else {
+            is_emojified = FALSE;
+          }
         }
         else {
           matched = FALSE;
@@ -608,6 +641,7 @@ tokenize (const char *input,
 
           is_zwjed = FALSE;
           is_fitzpatricked = FALSE;
+          is_emojified = FALSE;
         }
 
         if (!matched) {

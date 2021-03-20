@@ -175,6 +175,17 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468\u200D\U0001F466\u200D\U0001F466", COUNT_COMPACT), ==, 2); // Man+ZWJ+Man+ZWJ+Girl+ZWJ+Girl
 }
 
+static void
+cawbird_bug_114 (void)
+{
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4", COUNT_COMPACT), ==, 2); // White flag without VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4\uFE0F", COUNT_COMPACT), ==, 2); // White flag with VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4\u200D\U0001F308", COUNT_COMPACT), ==, 2); // Rainbow flag without VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F3F4\uFE0F\u200D\U0001F308", COUNT_COMPACT), ==, 2); // Rainbow flag with VS16
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\U0001F3FF", COUNT_COMPACT), ==, 2); // Man with dark skin
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468", COUNT_COMPACT), ==, 2); // Default yellow man
+}
+
 int
 main (int argc, char **argv)
 {
@@ -193,6 +204,7 @@ main (int argc, char **argv)
   g_test_add_func ("/length/utf8", utf8);
   g_test_add_func ("/length/validate", validate);
   g_test_add_func ("/length/emoji", emoji);
+  g_test_add_func ("/length/cawbird-bug114", cawbird_bug_114);
 
   return g_test_run ();
 }
