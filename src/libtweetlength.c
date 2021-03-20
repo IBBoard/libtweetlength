@@ -90,6 +90,9 @@ enum {
   CHARTYPE_GENDER,
   CHARTYPE_HAIR,
   CHARTYPE_RAINBOW,
+  CHARTYPE_TRANSGENDER_SYMBOL,
+  CHARTYPE_SKULL_AND_CROSSBONES,
+  CHARTYPE_PARTIAL_COMBINED_FLAG,
   CHARTYPE_COMBINED_FLAG,
   CHARTYPE_VS16,
   CHARTYPE_TAG,
@@ -130,6 +133,8 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARENT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_TRANSGENDER_SYMBOL), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BLACK_FLAG, CHARTYPE_SKULL_AND_CROSSBONES), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
 
   // We assume that CHARTYPE_TAG strings are valid because it's too much trouble if they're not.
   // There's a near-zero probability of people writing them by hand, so we should be safe.
@@ -497,6 +502,12 @@ chartype_for_char (gunichar c)
   else if (c == 0x1F308) {
     return CHARTYPE_RAINBOW;
   }
+  else if (c == 0x26A7) {
+    return CHARTYPE_TRANSGENDER_SYMBOL;
+  }
+  else if (c == 0x2620) {
+    return CHARTYPE_SKULL_AND_CROSSBONES;
+  }
   else if ((c >= 0xE0030 && c <= 0xE0039)
             || (c >= 0xE0041 && c <= 0xE005A)
             || (c >= 0xE0061 && c <= 0xE007A)) {
@@ -515,6 +526,7 @@ chartype_for_char (gunichar c)
     return CHARTYPE_VS16;
   }
   else {
+    g_debug("Fell through to \"other\" for %s (0x%08X)", g_ucs4_to_utf8 (&c, 1, NULL, NULL, NULL), c);
     return CHARTYPE_WEIGHTED_OTHER;
   }
 }
@@ -536,6 +548,7 @@ static inline gboolean
 is_emojifiable (guint char_type) {
   switch (char_type) {
     case CHARTYPE_WHITE_FLAG:
+    case CHARTYPE_PARTIAL_COMBINED_FLAG:
       return TRUE;
     default:
       return FALSE;
