@@ -167,7 +167,7 @@ static void
 emoji (void)
 {
   // Based on what Twitter supports, based on https://unicode.org/emoji/charts/emoji-zwj-sequences.html tested in https://twitter.com/IBBoard/status/1373292346033442820/photo/1
-  // (rather than picking apart the regex, which is messy because of the \u… handling in Java vs Vala)
+  // (rather than picking apart the regex, which is messy because of the "\u…" handling in Java vs Vala)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468", COUNT_COMPACT), ==, 2); // Man
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D", COUNT_COMPACT), ==, 3); // Man and trailing ZWJ
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468", COUNT_COMPACT), ==, 5); // Man+ZWJ+Man (doesn't combine)
@@ -197,6 +197,14 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\U0001F3FE\u200D\U0001F9B3", COUNT_COMPACT), ==, 2); // Medium-dark skin tone white haired person
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FF\u200D\U0001F9B2", COUNT_COMPACT), ==, 2); // Dark skin tone bald woman
 
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F471\U0001F3FB\u200D\u2640\uFE0F", COUNT_COMPACT), ==, 2); // Light skin person plus female symbol
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F471\U0001F3FC\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 2); // Medium-light skin person plus male symbol
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F64D\U0001F3FF\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 2); // Dark skin tone frowning plus male symbol
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F64E\u200D\u2640\uFE0F", COUNT_COMPACT), ==, 2); // Pouting person plus female symbol
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 2); // Men with bunny ears
+  // FIXME: This should be 7, because Twitter combines gender with the VS-16 and only counts it for 2
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\U0001F3FC\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 9); // Fitzpatrick breaks it
 }
 
 static void

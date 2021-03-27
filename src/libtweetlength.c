@@ -85,8 +85,12 @@ enum {
   CHARTYPE_FAMILY_1_CHILD,
   CHARTYPE_FAMILY_2_CHILD,
   CHARTYPE_PERSON,
+  CHARTYPE_GENDERABLE_PERSON,
+  CHARTYPE_UNTONED_GENDERABLE_PERSON,
   CHARTYPE_FITZPATRICKED_PERSON,
+  CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON,
   CHARTYPE_FITZPATRICKED_ADULT,
+  CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT,
   CHARTYPE_HAIRSTYLE,
   CHARTYPE_HAIRSTYLED_ADULT,
   CHARTYPE_JOB,
@@ -95,6 +99,8 @@ enum {
   CHARTYPE_WHITE_FLAG_VS16,
   CHARTYPE_BLACK_FLAG,
   CHARTYPE_GENDER,
+  CHARTYPE_GENDERED_PERSON_TEXT,
+  CHARTYPE_GENDERED_PERSON,
   CHARTYPE_HAIR,
   CHARTYPE_HEART,
   CHARTYPE_LOVE_BASE_TEXT,
@@ -158,9 +164,10 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
 
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CHILD, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
 
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
@@ -168,6 +175,14 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
+
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNTONED_GENDERABLE_PERSON, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERED_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDERED_PERSON, 0));
 
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_WHITE_FLAG_VS16, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
@@ -511,6 +526,54 @@ chartype_for_char (gunichar c)
   else if (c == 0x1F9D1) {
     return CHARTYPE_UNGENDERED_ADULT;
   }
+  else if (c == 0x26F9
+           || c == 0x1F3C3
+           || c == 0x1F3C4
+           || c == 0x1F3CA
+           || c == 0x1F3CB
+           || c == 0x1F3CC
+           || c == 0x1F46E
+           || c == 0x1F470
+           || c == 0x1F471
+           || c == 0x1F473
+           || c == 0x1F477
+           || c == 0x1F481
+           || c == 0x1F482
+           || c == 0x1F486
+           || c == 0x1F487
+           || c == 0x1F575
+           || (c >= 0x1F645 && c<= 0x1F647)
+           || c == 0x1F64B
+           || c == 0x1F64D
+           || c == 0x1F64E
+           || c == 0x1F6A3
+           || c == 0x1F6B4
+           || c == 0x1F6B5
+           || c == 0x1F6B6
+           || c == 0x1F926
+           || c == 0x1F935
+           || c == 0x1F937
+           || c == 0x1F938
+           || c == 0x1F939
+           || c == 0x1F93D
+           || c == 0x1F93E
+           || c == 0x1F9B8
+           || c == 0x1F9B9
+           || c == 0x1F9CD
+           || c == 0x1F9CE
+           || c == 0x1F9CF
+           || c == 0x1F9D6
+           || c == 0x1F9D7
+           || c == 0x1F9D8
+           || c == 0x1F9D9
+           || (c >= 0x1F9DA && c <= 0x1F9DE)
+           ) {
+    return CHARTYPE_GENDERABLE_PERSON;
+  }
+  else if (c == 0x1F9DD || c == 0x1F93C || c == 0x1F46F) {
+    // Zombies, wrestlers and bunnie people, oh my!
+    return CHARTYPE_UNTONED_GENDERABLE_PERSON;
+  }
   else if (c == 0x261D
            || c == 0x26F9
            || (c >= 0x270A && c<= 0x270C)
@@ -535,8 +598,9 @@ chartype_for_char (gunichar c)
            || c == 0x1F57A
            || c == 0x1F590
            || (c >= 0x1F595 && c<= 0x1F596)
-           || (c >= 0x1F645 && c<= 0x1F647)
-           || (c >= 0x1F64B && c<= 0x1F64F)
+           //|| (c >= 0x1F645 && c<= 0x1F647) // All genderable
+           //|| (c >= 0x1F64B && c<= 0x1F64F) // All genderable except …C
+           || c == 0x1F64C
            || c == 0x1F6A3
            || (c >= 0x1F6B4 && c<= 0x1F6B5)
            || c == 0x1F6B6
@@ -547,7 +611,7 @@ chartype_for_char (gunichar c)
            || c == 0x1F918
            || (c >= 0x1F919 && c<= 0x1F91E)
            || c == 0x1F91F
-           || c == 0x1F926
+           // || c == 0x1F926 // Genderable
            || c == 0x1F930
            || (c >= 0x1F931 && c<= 0x1F932)
            || (c >= 0x1F933 && c<= 0x1F939)
@@ -583,6 +647,9 @@ chartype_for_char (gunichar c)
   }
   else if (c >= 0x1F9B0 && c <= 0x1F9B3) {
     return CHARTYPE_HAIRSTYLE;
+  }
+  else if (c == 0x2640 || c == 0x2642) {
+    return CHARTYPE_GENDER;
   }
   else if ((c >= 0xE0030 && c <= 0xE0039)
             || (c >= 0xE0041 && c <= 0xE005A)
