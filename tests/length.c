@@ -204,6 +204,13 @@ emoji (void)
 
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 2); // Men with bunny ears
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\U0001F3FC\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 7); // Fitzpatrick breaks it
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\u200D\u2696\uFE0F", COUNT_COMPACT), ==, 2); // Judge - untoned person with VS-16 job
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\U0001F3FB\u200D\u2695\uFE0F", COUNT_COMPACT), ==, 2); // Male health worker with light skin tone - VS-16 job
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FD\u200D\u2708\uFE0F", COUNT_COMPACT), ==, 2); // Woman pilot with medium skin tone - VS-16 job
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\U0001F3FF\u200D\U0001F393", COUNT_COMPACT), ==, 2); // Student with dark skin - non-VS-16 job
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F3ED", COUNT_COMPACT), ==, 2); // Male factory worker - non-VS-16 job
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FD\u200D\u2696\uFE0F", COUNT_COMPACT), ==, 2); // Woman judge with medium skin tone - non-VS-16 job
 }
 
 static void
