@@ -532,9 +532,7 @@ chartype_for_char (gunichar c)
   else if (c == 0x26F9
            || c == 0x1F3C3
            || c == 0x1F3C4
-           || c == 0x1F3CA
-           || c == 0x1F3CB
-           || c == 0x1F3CC
+           || (c >= 0x1F3CA && c == 0x1F3CC)
            || c == 0x1F46E
            || c == 0x1F470
            || c == 0x1F471
@@ -550,81 +548,59 @@ chartype_for_char (gunichar c)
            || c == 0x1F64D
            || c == 0x1F64E
            || c == 0x1F6A3
-           || c == 0x1F6B4
-           || c == 0x1F6B5
-           || c == 0x1F6B6
+           || (c >= 0x1F6B4 && c <= 0x1F6B6)
            || c == 0x1F926
            || c == 0x1F935
-           || c == 0x1F937
-           || c == 0x1F938
-           || c == 0x1F939
+           || (c >= 0x1F937 && c <= 0x1F939)
            || c == 0x1F93D
            || c == 0x1F93E
            || c == 0x1F9B8
            || c == 0x1F9B9
-           || c == 0x1F9CD
-           || c == 0x1F9CE
-           || c == 0x1F9CF
-           || c == 0x1F9D6
-           || c == 0x1F9D7
-           || c == 0x1F9D8
-           || c == 0x1F9D9
-           || (c >= 0x1F9DA && c <= 0x1F9DE)
+           || (c >= 0x1F9CD && c <= 0x1F9CF)
+           || (c >= 0x1F9D6 && c <= 0x1F9DE)
            ) {
     return CHARTYPE_GENDERABLE_PERSON;
   }
-  else if (c == 0x1F9DD || c == 0x1F93C || c == 0x1F46F) {
+  else if (c == 0x1F46F || c == 0x1F93C || c == 0x1F9DD) {
     // Zombies, wrestlers and bunnie people, oh my!
     return CHARTYPE_UNTONED_GENDERABLE_PERSON;
   }
   else if (c == 0x261D
-           || c == 0x26F9
            || (c >= 0x270A && c<= 0x270C)
            || c == 0x270D
            || c == 0x1F385
-           || (c >= 0x1F3C2 && c<= 0x1F3C4)
+           || c == 0x1F3C2
            || c == 0x1F3C7
-           || c == 0x1F3CA
-           || (c >= 0x1F3CB && c<= 0x1F3CC)
-           || (c >= 0x1F442 && c<= 0x1F443)
-           || (c >= 0x1F446 && c<= 0x1F450)
-           || (c >= 0x1F466 && c<= 0x1F46B)
-           || (c >= 0x1F46C && c<= 0x1F46D)
-           || (c >= 0x1F46E && c<= 0x1F478)
+           || c == 0x1F442
+           || c == 0x1F443
+           || (c >= 0x1F446 && c <= 0x1F450)
+           || (c >= 0x1F466 && c <= 0x1F46D)
            || c == 0x1F47C
-           || (c >= 0x1F481 && c<= 0x1F483)
-           || (c >= 0x1F485 && c<= 0x1F487)
+           || c == 0x1F483
+           || c == 0x1F485
            || c == 0x1F48F
            || c == 0x1F491
            || c == 0x1F4AA
-           || (c >= 0x1F574 && c<= 0x1F575)
+           || c == 0x1F574
            || c == 0x1F57A
            || c == 0x1F590
-           || (c >= 0x1F595 && c<= 0x1F596)
-           //|| (c >= 0x1F645 && c<= 0x1F647) // All genderable
-           //|| (c >= 0x1F64B && c<= 0x1F64F) // All genderable except …C
+           || c == 0x1F595
+           || c == 0x1F596
            || c == 0x1F64C
-           || c == 0x1F6A3
-           || (c >= 0x1F6B4 && c<= 0x1F6B5)
-           || c == 0x1F6B6
            || c == 0x1F6C0
            || c == 0x1F6CC
            || c == 0x1F90C
            || c == 0x1F90F
            || c == 0x1F918
-           || (c >= 0x1F919 && c<= 0x1F91E)
+           || (c >= 0x1F919 && c <= 0x1F91E)
            || c == 0x1F91F
-           // || c == 0x1F926 // Genderable
-           || c == 0x1F930
-           || (c >= 0x1F931 && c<= 0x1F932)
-           || (c >= 0x1F933 && c<= 0x1F939)
-           || (c >= 0x1F93C && c<= 0x1F93E)
+           || (c >= 0x1F930 && c <= 0x1F934)
+           || c == 0x1F936
            || c == 0x1F977
-           || (c >= 0x1F9B5 && c<= 0x1F9B6)
-           || (c >= 0x1F9B8 && c<= 0x1F9B9)
+           || c == 0x1F9B5
+           || c == 0x1F9B6
            || c == 0x1F9BB
-           || (c >= 0x1F9CD && c<= 0x1F9CF)
-           || (c >= 0x1F9D1 && c<= 0x1F9DD)) {
+           || (c >= 0x1F9D1 && c<= 0x1F9D5)) {
     return CHARTYPE_PERSON;
   }
   else if (c == 0x1F3F3) {
