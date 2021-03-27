@@ -166,6 +166,8 @@ validate (void)
 static void
 emoji (void)
 {
+  // Based on what Twitter supports, based on https://unicode.org/emoji/charts/emoji-zwj-sequences.html tested in https://twitter.com/IBBoard/status/1373292346033442820/photo/1
+  // (rather than picking apart the regex, which is messy because of the \u… handling in Java vs Vala)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468", COUNT_COMPACT), ==, 2); // Man
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D", COUNT_COMPACT), ==, 3); // Man and trailing ZWJ
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F468", COUNT_COMPACT), ==, 5); // Man+ZWJ+Man (doesn't combine)
@@ -189,6 +191,12 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469", COUNT_COMPACT), ==, 13); // Man and Woman breaks it
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FF\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469", COUNT_COMPACT), ==, 13); // Fitzpatrick breaks it
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F469\U0001F3FF", COUNT_COMPACT), ==, 4); // Fitzpatrick after is an extra
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F9B0", COUNT_COMPACT), ==, 2); // Yellow readhead man
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FC\u200D\U0001F9B1", COUNT_COMPACT), ==, 2); // Medium skin tone curly haired woman
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\U0001F3FE\u200D\U0001F9B3", COUNT_COMPACT), ==, 2); // Medium-dark skin tone white haired person
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FF\u200D\U0001F9B2", COUNT_COMPACT), ==, 2); // Dark skin tone bald woman
+
 }
 
 static void
