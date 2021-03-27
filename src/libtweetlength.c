@@ -120,12 +120,20 @@ enum {
   CHARTYPE_SKULL_AND_CROSSBONES,
   CHARTYPE_PARTIAL_COMBINED_FLAG,
   CHARTYPE_COMBINED_FLAG,
-  CHARTYPE_VS16,
+  CHARTYPE_CHRISTMAS_TREE,
+  CHARTYPE_DOG,
+  CHARTYPE_SAFETY_VEST,
+  CHARTYPE_CAT,
+  CHARTYPE_COLOUR_BLACK,
+  CHARTYPE_BEAR,
+  CHARTYPE_SNOWFLAKE,
+  CHARTYPE_ZWJ_ANIMAL_TEXT,
+  CHARTYPE_ZWJ_ANIMAL,
   CHARTYPE_TAG,
   CHARTYPE_TAGGED_FLAG,
   CHARTYPE_TAG_CLOSE,
-  CHARTYPE_ZWJ,
-  LAST_CHARTYPE
+  CHARTYPE_VS16,
+  CHARTYPE_ZWJ
 };
 
 typedef struct _CharTypeOption {
@@ -174,6 +182,9 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_JOB_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
 
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_CHRISTMAS_TREE), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_CHRISTMAS_TREE), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
+
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, 0));
@@ -220,6 +231,10 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE_POSSIBLE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_KISSING, 0));
   // But not Man Heart Kiss Woman
 
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BEAR, CHARTYPE_SNOWFLAKE), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_ZWJ_ANIMAL_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_DOG, CHARTYPE_SAFETY_VEST), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CAT, CHARTYPE_COLOUR_BLACK), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, 0));
 
   // We assume that CHARTYPE_TAG strings are valid because it's too much trouble if they're not.
   // There's a near-zero probability of people writing them by hand, so we should be safe.
@@ -613,40 +628,6 @@ chartype_for_char (gunichar c)
            || (c >= 0x1F9D1 && c<= 0x1F9D5)) {
     return CHARTYPE_PERSON;
   }
-  else if (c == 0x1F3F3) {
-    return CHARTYPE_WHITE_FLAG;
-  }
-  else if (c == 0x1F3F4) {
-    return CHARTYPE_BLACK_FLAG;
-  }
-  else if (c == 0x1F308) {
-    return CHARTYPE_RAINBOW;
-  }
-  else if (c == 0x26A7) {
-    return CHARTYPE_TRANSGENDER_SYMBOL;
-  }
-  else if (c == 0x2620) {
-    return CHARTYPE_SKULL_AND_CROSSBONES;
-  }
-  else if (c == 0x2764) {
-    return CHARTYPE_HEART;
-  }
-  else if (c == 0x1F48B) {
-    return CHARTYPE_KISS_MARK;
-  }
-  else if (c >= 0x1F9B0 && c <= 0x1F9B3) {
-    return CHARTYPE_HAIRSTYLE;
-  }
-  else if (c == 0x2640 || c == 0x2642) {
-    return CHARTYPE_GENDER_TEXT;
-  }
-  else if ((c >= 0xE0030 && c <= 0xE0039)
-            || (c >= 0xE0041 && c <= 0xE005A)
-            || (c >= 0xE0061 && c <= 0xE007A)) {
-    // Capital letters and digits, as per https://www.unicode.org/L2/L2015/15190-pri299-additional-flags-bkgnd.html
-    // But Twitter takes lower-case
-    return CHARTYPE_TAG;
-  }
   else if (c == 0xE007F) {
     return CHARTYPE_TAG_CLOSE;
   }
@@ -675,6 +656,61 @@ chartype_for_char (gunichar c)
   }
   else if (c == 0xFE0F) {
     return CHARTYPE_VS16;
+  }
+  else if (c == 0x1F3F3) {
+    return CHARTYPE_WHITE_FLAG;
+  }
+  else if (c == 0x1F3F4) {
+    return CHARTYPE_BLACK_FLAG;
+  }
+  else if (c == 0x1F308) {
+    return CHARTYPE_RAINBOW;
+  }
+  else if (c == 0x26A7) {
+    return CHARTYPE_TRANSGENDER_SYMBOL;
+  }
+  else if (c == 0x2620) {
+    return CHARTYPE_SKULL_AND_CROSSBONES;
+  }
+  else if (c == 0x2764) {
+    return CHARTYPE_HEART;
+  }
+  else if (c == 0x1F48B) {
+    return CHARTYPE_KISS_MARK;
+  }
+  else if (c >= 0x1F9B0 && c <= 0x1F9B3) {
+    return CHARTYPE_HAIRSTYLE;
+  }
+  else if (c == 0x2640 || c == 0x2642) {
+    return CHARTYPE_GENDER_TEXT;
+  }
+  else if (c == 0x1F384) {
+    return CHARTYPE_CHRISTMAS_TREE;
+  }
+  else if (c == 0x1F408) {
+    return CHARTYPE_CAT;
+  }
+  else if (c == 0x1F415) {
+    return CHARTYPE_DOG;
+  }
+  else if (c == 0x1F43B) {
+    return CHARTYPE_BEAR;
+  }
+  else if (c == 0x1F9BA) {
+    return CHARTYPE_SAFETY_VEST;
+  }
+  else if (c == 0x2B1B) {
+    return CHARTYPE_COLOUR_BLACK;
+  }
+  else if (c == 0x2744) {
+    return CHARTYPE_SNOWFLAKE;
+  }
+  else if ((c >= 0xE0030 && c <= 0xE0039)
+            || (c >= 0xE0041 && c <= 0xE005A)
+            || (c >= 0xE0061 && c <= 0xE007A)) {
+    // Capital letters and digits, as per https://www.unicode.org/L2/L2015/15190-pri299-additional-flags-bkgnd.html
+    // But Twitter takes lower-case
+    return CHARTYPE_TAG;
   }
   else {
 #ifdef LIBTL_DEBUG

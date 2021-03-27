@@ -211,6 +211,13 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\U0001F3FF\u200D\U0001F393", COUNT_COMPACT), ==, 2); // Student with dark skin - non-VS-16 job
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F468\u200D\U0001F3ED", COUNT_COMPACT), ==, 2); // Male factory worker - non-VS-16 job
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F469\U0001F3FD\u200D\u2696\uFE0F", COUNT_COMPACT), ==, 2); // Woman judge with medium skin tone - non-VS-16 job
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\u200D\U0001F384", COUNT_COMPACT), ==, 2); // Mx Claus
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F9D1\U0001F3FE\u200D\U0001F384", COUNT_COMPACT), ==, 2); // Mx Claus with medium-dark skin tone
+
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F415\u200D\U0001F9BA", COUNT_COMPACT), ==, 2); // Service dog
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F408\u200D\u2B1B", COUNT_COMPACT), ==, 2); // Black cat
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F43B\u200D\u2744\uFE0F", COUNT_COMPACT), ==, 2); // Polar bear
 }
 
 static void
