@@ -203,8 +203,7 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F64E\u200D\u2640\uFE0F", COUNT_COMPACT), ==, 2); // Pouting person plus female symbol
 
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 2); // Men with bunny ears
-  // FIXME: This should be 7, because Twitter combines gender with the VS-16 and only counts it for 2
-  g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\U0001F3FC\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 9); // Fitzpatrick breaks it
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F46F\U0001F3FC\u200D\u2642\uFE0F", COUNT_COMPACT), ==, 7); // Fitzpatrick breaks it
 }
 
 static void

@@ -98,6 +98,7 @@ enum {
   CHARTYPE_WHITE_FLAG,
   CHARTYPE_WHITE_FLAG_VS16,
   CHARTYPE_BLACK_FLAG,
+  CHARTYPE_GENDER_TEXT,
   CHARTYPE_GENDER,
   CHARTYPE_GENDERED_PERSON_TEXT,
   CHARTYPE_GENDERED_PERSON,
@@ -177,12 +178,14 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNTONED_GENDERABLE_PERSON, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, CHARTYPE_GENDER), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNTONED_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERED_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDERED_PERSON, 0));
+
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDER_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDER, 0));
 
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_WHITE_FLAG_VS16, 0));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
@@ -649,7 +652,7 @@ chartype_for_char (gunichar c)
     return CHARTYPE_HAIRSTYLE;
   }
   else if (c == 0x2640 || c == 0x2642) {
-    return CHARTYPE_GENDER;
+    return CHARTYPE_GENDER_TEXT;
   }
   else if ((c >= 0xE0030 && c <= 0xE0039)
             || (c >= 0xE0041 && c <= 0xE005A)
