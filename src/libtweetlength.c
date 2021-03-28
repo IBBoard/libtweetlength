@@ -22,7 +22,14 @@
 #define LINK_LENGTH 23
 #define UNWEIGHTED_VALUE 1
 #define WEIGHTED_VALUE 2
+#define REGIONAL_INDICATOR_OFFSET 0x1F1E6
 #define MAKE_KEY(prev_char, cur_char) GUINT_TO_POINTER(prev_char + (cur_char << 8))
+
+// Map of current character type to a list of potential replacements based on the previous character
+GHashTable *chartype_map;
+// Lookup table of valid Regional Indicator strings
+gboolean valid_ri_strings[26*26];
+gboolean ri_validator_generated = FALSE;
 
 typedef struct {
   guint type;
@@ -129,6 +136,8 @@ enum {
   CHARTYPE_SNOWFLAKE,
   CHARTYPE_ZWJ_ANIMAL_TEXT,
   CHARTYPE_ZWJ_ANIMAL,
+  CHARTYPE_REGIONAL_INDICATOR,
+  CHARTYPE_REGIONAL_INDICATOR_FLAG,
   CHARTYPE_TAG,
   CHARTYPE_TAGGED_FLAG,
   CHARTYPE_TAG_CLOSE,
@@ -140,9 +149,6 @@ typedef struct _CharTypeOption {
   guint8 new_chartype;
   guint8 carry_weight;
 } CharTypeOption;
-
-// Map of current character type to a list of potential replacements based on the previous character
-GHashTable *chartype_map;
 
 static inline CharTypeOption*
 new_chartypeoption(guint new_chartype, guint carry_weight) {
@@ -243,6 +249,34 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAGGED_FLAG, CHARTYPE_TAG_CLOSE), new_chartypeoption(CHARTYPE_TAGGED_FLAG, 0));
 
   return chartype_map;
+}
+
+static gboolean
+is_valid_regional_indicator (gunichar ri_char1, gunichar ri_char2) {
+  if (!ri_validator_generated) {
+    // Strings taken from https://en.wikipedia.org/wiki/Regional_indicator_symbol
+    // Note: We need the trailing space to align everything for the loop!
+    gchar *indicators = "AC AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ"
+                        " CA CC CD CF CG CH CI CK CL CM CN CO CP CR CU CV CW CX CY CZ DE DG DJ DK DM DO DZ EA EC EE EG EH ER ES ET EU FI FJ FK FM FO FR"
+                        " GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU IC ID IE IL IM IN IO IQ IR IS IT JE JM JO JP"
+                        " KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ"
+                        " NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW"
+                        " SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TA TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ"
+                        " UA UG UM UN US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW"
+                        " AN BU CS DD FX NT QU SU TP YD YU ZR ";
+    gchar *char1 = indicators;
+    gchar *char2 = char1 + 1;
+
+    do {
+      valid_ri_strings[((*char1 - 0x41) * 26) + (*char2 - 0x41)] = TRUE;
+      char1 += 3;
+      char2 += 3;
+    } while (*char1 != '\0');
+
+    ri_validator_generated = TRUE;
+  }
+
+  return valid_ri_strings[((ri_char1 - REGIONAL_INDICATOR_OFFSET) * 26) + (ri_char2 - REGIONAL_INDICATOR_OFFSET)];
 }
 
 static inline guint
@@ -657,6 +691,9 @@ chartype_for_char (gunichar c)
   else if (c == 0xFE0F) {
     return CHARTYPE_VS16;
   }
+  else if (c >= 0x1F1E6 && c <= 0x1F1FF) {
+    return CHARTYPE_REGIONAL_INDICATOR;
+  }
   else if (c == 0x1F3F3) {
     return CHARTYPE_WHITE_FLAG;
   }
@@ -747,6 +784,7 @@ tokenize (const char *input,
     guint carry_weight = 0;
     gboolean is_zwjed = FALSE;
     gboolean matched = FALSE;
+    gunichar prev_ri_char = '\0';
     CharTypeOption *data;
 
     /* If this char already splits, it's a one-char token */
@@ -764,7 +802,6 @@ tokenize (const char *input,
       if (compact_emoji) {
         matched = FALSE;
         cur_char_type = chartype_for_char (cur_char);
-        g_debug("Chars: %u,%u", prev_char_type, cur_char_type);
 
         if (cur_char_type == CHARTYPE_ZWJ) {
           if (!is_zwjed) {
@@ -774,9 +811,14 @@ tokenize (const char *input,
           }
           cur_char_type = prev_char_type;
         }
+        else if (cur_char_type == CHARTYPE_REGIONAL_INDICATOR) {
+          if (prev_char_type == CHARTYPE_REGIONAL_INDICATOR && is_valid_regional_indicator (prev_ri_char, cur_char)) {
+            matched = TRUE;
+            cur_char_type = CHARTYPE_REGIONAL_INDICATOR_FLAG;
+          }
+          prev_ri_char = cur_char;
+        }
         else {
-          matched = FALSE;
-
           if (is_zwjed || cur_char_type == CHARTYPE_FITZPATRICK || cur_char_type == CHARTYPE_VS16
               || cur_char_type == CHARTYPE_TAG || prev_char_type == CHARTYPE_TAGGED_FLAG) {
             data = g_hash_table_lookup(chartype_map, MAKE_KEY(prev_char_type, cur_char_type));

@@ -218,6 +218,13 @@ emoji (void)
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F415\u200D\U0001F9BA", COUNT_COMPACT), ==, 2); // Service dog
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F408\u200D\u2B1B", COUNT_COMPACT), ==, 2); // Black cat
   g_assert_cmpint (tl_count_weighted_characters ("\U0001F43B\u200D\u2744\uFE0F", COUNT_COMPACT), ==, 2); // Polar bear
+
+  // Regional indicators that become flags
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F1EC\U0001F1E7", COUNT_COMPACT), ==, 2); // GB = United Kingdom
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F1FF\U0001F1FF", COUNT_COMPACT), ==, 4); // ZZ = invalid
+  // Two GBs in a row leaves a BG in the middle for Bulgaria, but that should be ignored because it's already taken
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F1EC\U0001F1E7\U0001F1EC\U0001F1E7", COUNT_COMPACT), ==, 4);
+  g_assert_cmpint (tl_count_weighted_characters ("\U0001F1FF\U0001F1EC\U0001F1E7\U0001F1FF", COUNT_COMPACT), ==, 6); // Offset matching - ZGBZ should put the UK in the middle of two Zs
 }
 
 static void
