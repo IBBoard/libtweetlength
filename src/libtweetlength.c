@@ -550,10 +550,10 @@ static inline gboolean
 is_weighted_character (gunichar ch) {
   // Based on https://developer.twitter.com/en/docs/developer-utilities/twitter-text
   // then the following ranges count as "1", everything else is "2":
-  //   * 0 - 4351 (Latin through to Georgian)
-  //   * 8192 - 8205 (Unicode spaces)
-  //   * 8208 - 8223 (Unicode hyphens and smart quotes)
-  //   * 8242 - 8247 (Prime marks)
+  //   * 0 - 4351 (0x0 - 0x10FF) = Latin through to Georgian
+  //   * 8192 - 8205 (0x2000 - 0x200D) = Unicode spaces
+  //   * 8208 - 8223 (0x2010 - 0x201F) = Unicode hyphens and smart quotes
+  //   * 8242 - 8247 (0x2032 - 0x2037) = Prime marks
   return !((ch >= 0    && ch <= 4351) ||
            (ch >= 8192 && ch <= 8205) ||
            (ch >= 8208 && ch <= 8223) ||
@@ -569,8 +569,13 @@ chartype_for_char (gunichar c)
   else if (!is_weighted_character (c)) {
     return CHARTYPE_UNWEIGHTED;
   }
-  else if (c >= 0x1100 && c <= 0x2000) {
+  else if (c == 0xFE0F) {
+    return CHARTYPE_VS16;
+  }
+  else if ((c >= 0x1100 && c < 0x2000) || (c >= 0x2800 && c <= 0x1F1E5 && c != 0x2B1B)) {
     // Hangul Jamo through Greek Extended
+    // and Braille Patterns through Enclosed Alphanumeric Supplemental (that aren't Regional Indicators)
+    // We specifically exclude U+2B1B to keep the range as big as possible
     return CHARTYPE_WEIGHTED_OTHER;
   }
   else if (c >= 0x1F3FB && c <= 0x1F3FF) {
@@ -687,9 +692,6 @@ chartype_for_char (gunichar c)
   }
   else if (c == 0x2695 || c == 0x2696 || c == 0x2708) {
     return CHARTYPE_JOB_TEXT;
-  }
-  else if (c == 0xFE0F) {
-    return CHARTYPE_VS16;
   }
   else if (c >= 0x1F1E6 && c <= 0x1F1FF) {
     return CHARTYPE_REGIONAL_INDICATOR;
