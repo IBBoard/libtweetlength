@@ -22,6 +22,7 @@
 #define LINK_LENGTH 23
 #define UNWEIGHTED_VALUE 1
 #define WEIGHTED_VALUE 2
+#define END_SEQUENCE_WEIGHT 0
 #define REGIONAL_INDICATOR_OFFSET 0x1F1E6
 #define MAKE_KEY(prev_char, cur_char) GUINT_TO_POINTER(prev_char + (cur_char << 8))
 
@@ -171,82 +172,82 @@ get_chartype_options ()
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_FAMILY_PARENTS, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_WOMAN), new_chartypeoption(CHARTYPE_FAMILY_PARENTS, WEIGHTED_VALUE));
   // But not Woman then Man for the family
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_PARENTS, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_PARENTS, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_1_CHILD, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FAMILY_1_CHILD, CHARTYPE_CHILD), new_chartypeoption(CHARTYPE_FAMILY_2_CHILD, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, 2));  
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, 2));  
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));  
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_JOB_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_JOB_TEXT), new_chartypeoption(CHARTYPE_JOB_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_JOB), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_JOB_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_CHRISTMAS_TREE), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_CHRISTMAS_TREE), new_chartypeoption(CHARTYPE_JOB_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_CHRISTMAS_TREE), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_CHRISTMAS_TREE), new_chartypeoption(CHARTYPE_JOB_PERSON, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CHILD, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CHILD, CHARTYPE_FITZPATRICK), new_chartypeoption(CHARTYPE_FITZPATRICKED_PERSON, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_HAIRSTYLE), new_chartypeoption(CHARTYPE_HAIRSTYLED_ADULT, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNTONED_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERED_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDERED_PERSON, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNGENDERED_ADULT, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_UNTONED_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_UNGENDERED_ADULT, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_FITZPATRICKED_GENDERABLE_PERSON, CHARTYPE_GENDER_TEXT), new_chartypeoption(CHARTYPE_GENDERED_PERSON_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDERED_PERSON_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDERED_PERSON, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDER_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDER, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_GENDER_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_GENDER, END_SEQUENCE_WEIGHT));
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_WHITE_FLAG_VS16, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG_VS16, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_WHITE_FLAG_VS16, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG_VS16, CHARTYPE_RAINBOW), new_chartypeoption(CHARTYPE_COMBINED_FLAG, END_SEQUENCE_WEIGHT));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG, CHARTYPE_TRANSGENDER_SYMBOL), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WHITE_FLAG_VS16, CHARTYPE_TRANSGENDER_SYMBOL), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BLACK_FLAG, CHARTYPE_SKULL_AND_CROSSBONES), new_chartypeoption(CHARTYPE_PARTIAL_COMBINED_FLAG, WEIGHTED_VALUE));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARTIAL_COMBINED_FLAG, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_COMBINED_FLAG, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_PARTIAL_COMBINED_FLAG, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_COMBINED_FLAG, END_SEQUENCE_WEIGHT));
 
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_WOMAN, CHARTYPE_HEART), new_chartypeoption(CHARTYPE_LOVE_BASE_TEXT, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_MAN, CHARTYPE_HEART), new_chartypeoption(CHARTYPE_LOVE_BASE_TEXT_POSSIBLE, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_LOVE_BASE, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE_TEXT_POSSIBLE, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_LOVE_BASE_POSSIBLE, WEIGHTED_VALUE));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_LOVE, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE, CHARTYPE_WOMAN), new_chartypeoption(CHARTYPE_LOVE, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE_POSSIBLE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_LOVE, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_LOVE, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE, CHARTYPE_WOMAN), new_chartypeoption(CHARTYPE_LOVE, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE_POSSIBLE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_LOVE, END_SEQUENCE_WEIGHT));
   // But not Man Heart Woman
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE, CHARTYPE_KISS_MARK), new_chartypeoption(CHARTYPE_KISSING_BASE, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_LOVE_BASE_POSSIBLE, CHARTYPE_KISS_MARK), new_chartypeoption(CHARTYPE_KISSING_BASE_POSSIBLE, WEIGHTED_VALUE));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_KISSING, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE, CHARTYPE_WOMAN), new_chartypeoption(CHARTYPE_KISSING, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE_POSSIBLE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_KISSING, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_KISSING, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE, CHARTYPE_WOMAN), new_chartypeoption(CHARTYPE_KISSING, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_KISSING_BASE_POSSIBLE, CHARTYPE_MAN), new_chartypeoption(CHARTYPE_KISSING, END_SEQUENCE_WEIGHT));
   // But not Man Heart Kiss Woman
 
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BEAR, CHARTYPE_SNOWFLAKE), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL_TEXT, 2));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_ZWJ_ANIMAL_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_DOG, CHARTYPE_SAFETY_VEST), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, 0));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CAT, CHARTYPE_COLOUR_BLACK), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BEAR, CHARTYPE_SNOWFLAKE), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL_TEXT, WEIGHTED_VALUE));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_ZWJ_ANIMAL_TEXT, CHARTYPE_VS16), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_DOG, CHARTYPE_SAFETY_VEST), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, END_SEQUENCE_WEIGHT));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_CAT, CHARTYPE_COLOUR_BLACK), new_chartypeoption(CHARTYPE_ZWJ_ANIMAL, END_SEQUENCE_WEIGHT));
 
   // We assume that CHARTYPE_TAG strings are valid because it's too much trouble if they're not.
   // There's a near-zero probability of people writing them by hand, so we should be safe.
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_BLACK_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAGGED_FLAG, WEIGHTED_VALUE));
   g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAGGED_FLAG, CHARTYPE_TAG), new_chartypeoption(CHARTYPE_TAGGED_FLAG, WEIGHTED_VALUE));
-  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAGGED_FLAG, CHARTYPE_TAG_CLOSE), new_chartypeoption(CHARTYPE_TAGGED_FLAG, 0));
+  g_hash_table_insert(chartype_map, MAKE_KEY(CHARTYPE_TAGGED_FLAG, CHARTYPE_TAG_CLOSE), new_chartypeoption(CHARTYPE_TAGGED_FLAG, END_SEQUENCE_WEIGHT));
 
   return chartype_map;
 }
@@ -829,7 +830,7 @@ tokenize (const char *input,
               matched = TRUE;
               int char_carry_weight = data->carry_weight;
               cur_char_type = data->new_chartype;
-              if (char_carry_weight == 0) {
+              if (char_carry_weight == END_SEQUENCE_WEIGHT) {
                 // It was a completing character
                 carry_weight = 0;
               }
